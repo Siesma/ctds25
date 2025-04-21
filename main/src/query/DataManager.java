@@ -1,28 +1,28 @@
 package query;
 
-import javax.xml.crypto.Data;
-import java.util.HashMap;
+import java.util.*;
 
 public class DataManager {
+    private final Map<String, List<Map<String, String>>> dataStore = new HashMap<>();
 
-    private HashMap<String, Object> entries;
-
-    public DataManager() {
-        init();
+    public void insert(String table, Map<String, String> row) {
+        dataStore.putIfAbsent(table, new ArrayList<>());
+        dataStore.get(table).add(new HashMap<>(row));
     }
 
-    private void init() {
-        this.entries = new HashMap<>();
-
+    public List<Map<String, String>> select(String table) {
+        return dataStore.getOrDefault(table, new ArrayList<>());
     }
 
-    public Object get(String lookup) {
-        return this.entries.get(lookup);
+    public List<Map<String, String>> getTableData(String table) {
+        return dataStore.get(table);
     }
 
-    public void update (String lookup, Object newO) {
-
+    public Map<String, List<Map<String, String>>> getSnapshot() {
+        Map<String, List<Map<String, String>>> snapshot = new HashMap<>();
+        for (String table : dataStore.keySet()) {
+            snapshot.put(table, new ArrayList<>(dataStore.get(table)));
+        }
+        return snapshot;
     }
-
-
 }
