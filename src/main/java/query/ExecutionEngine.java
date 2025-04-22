@@ -20,7 +20,7 @@ public class ExecutionEngine {
             case INSERT:
                 dataManager.insert(table, row);
                 break;
-            case SELECT:
+            case GET:
                 List<Map<String, String>> results = dataManager.select(table);
                 System.out.println("SELECT results for " + table + ": " + results);
                 break;
