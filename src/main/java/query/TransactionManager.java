@@ -16,18 +16,6 @@ public class TransactionManager {
         Arrays.asList(instructions).forEach(executionEngine::execute);
     }
 
-    public static class Instruction {
-        public OperationType opType;
-        public String tableName;
-        public Map<String, String> rowData;
-
-        public Instruction(OperationType opType, String tableName, Map<String, String> rowData) {
-            this.opType = opType;
-            this.tableName = tableName;
-            this.rowData = rowData;
-        }
-    }
-
     public synchronized String getUUIDByString(String input) {
         return "";
     }

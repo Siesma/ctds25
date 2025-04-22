@@ -29,7 +29,7 @@ public class ExecutionEngine {
         }
     }
 
-    public void execute(TransactionManager.Instruction instruction) {
+    public void execute(Instruction instruction) {
         // TODO: Verify correctness of instruction
         execute(instruction.opType, instruction.tableName, instruction.rowData);
     }
