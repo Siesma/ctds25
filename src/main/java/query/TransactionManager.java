@@ -19,7 +19,7 @@ public class TransactionManager {
     public static class Instruction {
         public OperationType opType;
         public String tableName;
-        public Map<String, String> rowData;
+        public Map<String, Integer> rowData;
 
         public Instruction(OperationType opType, String tableName, Map<String, String> rowData) {
             this.opType = opType;

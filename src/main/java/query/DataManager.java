@@ -2,26 +2,42 @@ package query;
 
 import java.util.*;
 
+/**
+ * Data Manager manages the actual update, insert, delete and retrieval of data. It provides
+ * APIs for these CRUD operations
+ */
+
 public class DataManager {
-    private final Map<String, List<Map<String, String>>> dataStore = new HashMap<>();
+    private final Map<String, Map<String, Integer>> dataStore = new HashMap<>(); //table, values can only be integers
 
-    public void insert(String table, Map<String, String> row) {
-        dataStore.putIfAbsent(table, new ArrayList<>());
-        dataStore.get(table).add(new HashMap<>(row));
+    /**
+     * insert a new key-value pair into the table
+     */
+    public void insert(String key, Map<String, Integer> value) {
+        dataStore.putIfAbsent(key, new HashMap<>(value));
     }
 
-    public List<Map<String, String>> select(String table) {
-        return dataStore.getOrDefault(table, new ArrayList<>());
+    public void delete(String key) {
+        dataStore.remove(key);
     }
 
-    public List<Map<String, String>> getTableData(String table) {
-        return dataStore.get(table);
+    /**
+     *  select
+     * @param key
+     * @return column with the given key
+     */
+    public Map<String, Integer> select(String key) {
+        return dataStore.getOrDefault(key, new HashMap<>());
     }
 
-    public Map<String, List<Map<String, String>>> getSnapshot() {
-        Map<String, List<Map<String, String>>> snapshot = new HashMap<>();
-        for (String table : dataStore.keySet()) {
-            snapshot.put(table, new ArrayList<>(dataStore.get(table)));
+    public Map<String, Integer> getRowData(String key) {
+        return dataStore.get(key);
+    }
+
+    public Map<String, Map<String, Integer>> getSnapshot() {
+        Map<String, Map<String, Integer>> snapshot = new HashMap<>();
+        for (String key : dataStore.keySet()){
+            snapshot.put(key, new HashMap<>(dataStore.get(key)));
         }
         return snapshot;
     }

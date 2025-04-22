@@ -11,7 +11,7 @@ public class ExecutionEngine {
         this.dataManager = dataManager;
     }
 
-    public void execute(OperationType opType, String table, Map<String, String> row) {
+    public void execute(OperationType opType, String table, Map<String, Integer> row) {
         switch (opType) {
             case UPDATE:
                 break;
@@ -21,7 +21,7 @@ public class ExecutionEngine {
                 dataManager.insert(table, row);
                 break;
             case SELECT:
-                List<Map<String, String>> results = dataManager.select(table);
+                Map<String, Integer> results = dataManager.select(table);
                 System.out.println("SELECT results for " + table + ": " + results);
                 break;
             default:
