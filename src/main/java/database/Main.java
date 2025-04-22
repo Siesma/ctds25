@@ -1,9 +1,6 @@
 package database;
 
-import query.DataManager;
-import query.ExecutionEngine;
-import query.OperationType;
-import query.TransactionManager;
+import query.*;
 
 import java.util.List;
 import java.util.Map;
@@ -21,9 +18,9 @@ public class Main {
         System.out.println(row2);
 
         tm.runTransaction(
-            new TransactionManager.Instruction(OperationType.INSERT, "users", row1),
-            new TransactionManager.Instruction(OperationType.INSERT, "users", row2),
-            new TransactionManager.Instruction(OperationType.SELECT, "users", null)
+            new Instruction(OperationType.INSERT, "users", row1),
+            new Instruction(OperationType.INSERT, "users", row2),
+            new Instruction(OperationType.SELECT, "users", null)
         );
     }
 }
