@@ -12,5 +12,5 @@ public enum OperationType {
     DELETE,
     GET,
     COMMIT,
-    ROLLBACK
+    ROLLBACK;
 }

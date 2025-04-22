@@ -11,16 +11,15 @@ public class Main {
         ExecutionEngine engine = new ExecutionEngine(new DataManager());
         TransactionManager tm = new TransactionManager(engine);
 
-        Map<String, String> row1 = Map.of("id", tm.obtainNewUUID(), "name", "Alice");
-        Map<String, String> row2 = Map.of("id", tm.obtainNewUUID(), "name", "Bob");
-
-        System.out.println(row1);
-        System.out.println(row2);
-
-        tm.runTransaction(
-            new Instruction(OperationType.INSERT, "users", row1),
-            new Instruction(OperationType.INSERT, "users", row2),
-            new Instruction(OperationType.SELECT, "users", null)
-        );
+//        Map<String, Integer> row1 = Map.of("id", tm.obtainNewUUID(), "name", "Alice");
+//        Map<String, Integer> row2 = Map.of("id", tm.obtainNewUUID(), "name", "Bob");
+//        System.out.println(row1);
+//        System.out.println(row2);
+//
+//        tm.runTransaction(
+//            new Instruction(OperationType.INSERT, "users", row1),
+//            new Instruction(OperationType.INSERT, "users", row2),
+//            new Instruction(OperationType.GET, "users", null)
+//        );
     }
 }
