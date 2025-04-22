@@ -21,7 +21,7 @@ public class TransactionManager {
         public String tableName;
         public Map<String, Integer> rowData;
 
-        public Instruction(OperationType opType, String tableName, Map<String, String> rowData) {
+        public Instruction(OperationType opType, String tableName, Map<String, Integer> rowData) {
             this.opType = opType;
             this.tableName = tableName;
             this.rowData = rowData;
