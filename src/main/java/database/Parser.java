@@ -3,48 +3,59 @@ package database;
 import query.Instruction;
 import query.OperationType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Parser {
 
-    /*
-    update myvalue 23467
-     */
-
-    public Parser() {
-
-    }
-
     public Instruction parse(String input) {
-        String[] content = input.split(" ");
-        OperationType type;
-        try {
-            type = OperationType.valueOf(content[0]);
-        } catch (Exception e) {
-            e.printStackTrace();
+        String[] tokens = input.trim().split("\\s+");
+
+        if (tokens.length < 2) {
+            System.err.println("Invalid command.");
             return null;
         }
-        switch (type) {
-            case INSERT -> {
-                return new Instruction(type, null, null);
+
+        String command = tokens[0].toUpperCase();
+
+        try {
+            OperationType type = OperationType.valueOf(command);
+
+            switch (type) {
+                case INSERT, UPDATE -> {
+                    String rowKey = tokens[1];
+                    String colKey = tokens[2];
+                    int value = Integer.parseInt(tokens[3]);
+
+                    Map<String, Integer> rowData = new HashMap<>();
+                    rowData.put(colKey, value);
+                    return new Instruction(type, rowKey, rowData);
+                }
+
+                case DELETE, GET -> {
+                    String target = tokens[1];
+                    /*
+                    Might work like this, maybe not depends on future iteration of Instruction handling
+                    if (type == OperationType.GET && "*".equals(target) && tokens.length == 3) {
+                        String colKey = tokens[2];
+                        Map<String, Integer> wildcardData = new HashMap<>();
+                        wildcardData.put("*", 0);
+                        wildcardData.put(colKey, 0);
+                        return new Instruction(type, "*", wildcardData);
+                    }
+                    */
+
+                    return new Instruction(type, target, null);
+                }
+
+                default -> {
+                    System.err.println("Unsupported operation: " + command);
+                    return null;
+                }
             }
-            case UPDATE -> {
-                return new Instruction(type, null, null);
-            }
-            case DELETE -> {
-                return new Instruction(type, null, null);
-            }
-            case GET -> {
-                return new Instruction(type, null, null);
-            }
-            case COMMIT -> {
-                return new Instruction(type, null, null);
-            }
-            case ROLLBACK -> {
-                return new Instruction(type, null, null);
-            }
-            default -> {
-                return null;
-            }
+        } catch (IllegalArgumentException e) {
+            System.err.println("Unknown operation type: " + command);
+            return null;
         }
     }
-
 }
