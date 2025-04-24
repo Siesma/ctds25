@@ -22,6 +22,9 @@ public class Parser {
             OperationType type = OperationType.valueOf(command);
 
             switch (type) {
+                case VISUALISE -> {
+                    return new Instruction(OperationType.VISUALISE, tokens[1], new HashMap<>());
+                }
                 case INSERT, UPDATE -> {
                     String rowKey = tokens[1];
                     String colKey = tokens[2];

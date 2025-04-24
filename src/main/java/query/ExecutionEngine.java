@@ -14,8 +14,10 @@ public class ExecutionEngine {
     public void execute(OperationType opType, String table, Map<String, Integer> row) {
         switch (opType) {
             case UPDATE:
+                dataManager.update(table, row);
                 break;
             case DELETE:
+                dataManager.delete(table, row);
                 break;
             case INSERT:
                 dataManager.insert(table, row);
@@ -24,6 +26,8 @@ public class ExecutionEngine {
                 Map<String, Integer> results = dataManager.select(table);
                 System.out.println("SELECT results for " + table + ": " + results);
                 break;
+            case VISUALISE:
+                dataManager.visualiseDataStore(table);
             default:
                 System.out.println("Operation not supported yet: " + opType);
         }

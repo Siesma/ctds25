@@ -2,6 +2,7 @@ package database;
 
 import query.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,15 +12,14 @@ public class Main {
         ExecutionEngine engine = new ExecutionEngine(new DataManager());
         TransactionManager tm = new TransactionManager(engine);
 
-//        Map<String, Integer> row1 = Map.of("id", tm.obtainNewUUID(), "name", "Alice");
-//        Map<String, Integer> row2 = Map.of("id", tm.obtainNewUUID(), "name", "Bob");
-//        System.out.println(row1);
-//        System.out.println(row2);
-//
-//        tm.runTransaction(
-//            new Instruction(OperationType.INSERT, "users", row1),
-//            new Instruction(OperationType.INSERT, "users", row2),
-//            new Instruction(OperationType.GET, "users", null)
-//        );
+
+        Parser parser = new Parser();
+        Instruction instruction = parser.parse("insert K1 Number 13");
+        Instruction instruction3 = parser.parse("insert K1 Number2 212");
+        Instruction instruction2 = parser.parse("insert K2 N1 1");
+        Instruction instruction4 = parser.parse("VISUALISE K1");
+
+        tm.runTransaction(instruction, instruction3, instruction2, instruction4);
+
     }
 }

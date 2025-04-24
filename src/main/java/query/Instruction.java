@@ -14,5 +14,10 @@ public class Instruction {
         this.rowData = rowData;
     }
 
+    @Override
+    public String toString () {
+        return String.format("%s %s {%s}", opType.toString(), tableName, rowData.toString().replaceAll("\n", ""));
+    }
+
 
 }
