@@ -2,16 +2,25 @@ package query;
 
 import java.util.Map;
 import java.util.List;
+import java.util.Stack;
 
 public class ExecutionEngine {
 
     private final DataManager dataManager;
 
+
+    private final Stack<Instruction> commitHistory;
+
     public ExecutionEngine(DataManager dataManager) {
         this.dataManager = dataManager;
+        this.commitHistory = new Stack<>();
     }
 
-    public void execute(OperationType opType, String table, Map<String, Integer> row) {
+    /*
+    Return a status integer to show whether an instruction has been completed correctly
+     */
+    public int execute(Instruction instruction, OperationType opType, String table, Map<String, Integer> row) {
+        commitHistory.push(instruction);
         switch (opType) {
             case UPDATE:
                 dataManager.update(table, row);
@@ -28,13 +37,29 @@ public class ExecutionEngine {
                 break;
             case VISUALISE:
                 dataManager.visualiseDataStore(table);
+            case ROLLBACK:
+                rollback(instruction, table);
             default:
                 System.out.println("Operation not supported yet: " + opType);
+                return 1;
         }
+        return 0;
     }
 
-    public void execute(Instruction instruction) {
+    public int execute(Instruction instruction) {
         // TODO: Verify correctness of instruction
-        execute(instruction.opType, instruction.tableName, instruction.rowData);
+        return execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
     }
+
+    public void rollback(Instruction instruction, String key) {
+        commitHistory.push(instruction);
+        Stack<Instruction> relevantCommits = new Stack<>();
+        while (!commitHistory.peek().getUuid().toString().equals(key)) {
+            relevantCommits.push(commitHistory.pop());
+        }
+        Instruction rollBackInstruction = commitHistory.pop();
+        dataManager.restoreSnapshot(rollBackInstruction);
+        relevantCommits.forEach(this::execute);
+    }
+
 }

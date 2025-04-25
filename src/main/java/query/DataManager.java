@@ -10,7 +10,6 @@ import java.util.*;
 public class DataManager {
     private final Map<String, Map<String, Integer>> dataStore = new HashMap<>(); //table, values can only be integers
 
-
     public void create(String key) {
         dataStore.putIfAbsent(key, new HashMap<>());
     }
@@ -66,13 +65,18 @@ public class DataManager {
         return snapshot;
     }
 
+    public void restoreSnapshot (Instruction instruction) {
+        // TODO: Implement
+        instruction.getSnapshot();
+    }
+
     public void visualiseDataStore(String key) {
         System.out.printf("%-10s | %-60s%n", "Key", "Value");
         System.out.println("=".repeat(60));
 
         for (Map.Entry<String, Map<String, Integer>> entry : dataStore.entrySet()) {
             String outerKey = entry.getKey();
-            if(!(outerKey.equalsIgnoreCase(key) || key.equals("*"))) {
+            if (!(outerKey.equalsIgnoreCase(key) || key.equals("*"))) {
                 continue;
             }
             Map<String, Integer> innerMap = entry.getValue();
