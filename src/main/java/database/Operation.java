@@ -2,8 +2,8 @@ package database;
 
 public class Operation {
 
-    private Operator operator;
-    private Integer value;
+    private final Operator operator;
+    private final Integer value;
 
     public Operation(Operator operator, Integer value) {
         this.operator = operator;
