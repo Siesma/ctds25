@@ -5,6 +5,11 @@ import java.util.UUID;
 
 public class Instruction {
 
+    /*
+    Order IDs, and maybe swap from uuid
+    and append "status" variable
+     */
+
     public OperationType opType;
     public String tableName;
     public Map<String, Integer> rowData;

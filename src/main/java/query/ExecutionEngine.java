@@ -52,9 +52,12 @@ public class ExecutionEngine {
     }
 
     public void rollback(Instruction instruction, String key) {
+        if(commitHistory.isEmpty()) {
+            return;
+        }
         commitHistory.push(instruction);
         Stack<Instruction> relevantCommits = new Stack<>();
-        while (!commitHistory.peek().getUuid().toString().equals(key)) {
+        while (!commitHistory.isEmpty() && !commitHistory.peek().getUuid().toString().equals(key)) {
             relevantCommits.push(commitHistory.pop());
         }
         Instruction rollBackInstruction = commitHistory.pop();

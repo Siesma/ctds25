@@ -6,6 +6,11 @@ import query.OperationType;
 import java.util.*;
 
 public class TransactionManager {
+
+    /*
+    Append conditions to check for conflicts
+     */
+
     private final ExecutionEngine executionEngine;
 
     public TransactionManager(ExecutionEngine engine) {
