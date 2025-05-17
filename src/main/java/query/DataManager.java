@@ -65,10 +65,16 @@ public class DataManager {
         return snapshot;
     }
 
-    public void restoreSnapshot (Instruction instruction) {
-        // TODO: Implement
-        instruction.getSnapshot();
+    public void restoreSnapshot(Instruction instruction) {
+        Map<String, Map<String, Integer>> snapshot = instruction.getSnapshot();
+
+        dataStore.clear();
+
+        for (Map.Entry<String, Map<String, Integer>> entry : snapshot.entrySet()) {
+            dataStore.put(entry.getKey(), new HashMap<>(entry.getValue()));
+        }
     }
+
 
     public void visualiseDataStore(String key) {
         System.out.printf("%-10s | %-60s%n", "Key", "Value");
