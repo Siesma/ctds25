@@ -1,5 +1,7 @@
 package query;
 
+import database.Operation;
+
 import java.util.*;
 
 /**
@@ -31,6 +33,24 @@ public class DataManager {
             create(key);
         }
         insert(key, value);
+    }
+
+    public void update(String key, Operation operation, List<String> value) {
+        if (!dataStore.containsKey(key)) {
+            return; // TODO ?
+        }
+
+        Map<String, Integer> row = dataStore.get(key);
+
+        Set<String> columnsToUpdate = (value == null) ? row.keySet() : new HashSet<>(value);
+
+        for (String col : columnsToUpdate) {
+            if (row.containsKey(col)) {
+                int oldValue = row.get(col);
+                int newValue = operation.apply(oldValue);
+                row.put(col, newValue);
+            }
+        }
     }
 
     public void delete(String key, Map<String, Integer> value) {
