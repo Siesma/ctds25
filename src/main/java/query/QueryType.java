@@ -1,6 +1,6 @@
 package query;
 
-public enum OperationType {
+public enum QueryType {
     /*
     Insert, Update and Delete are volatile / critical operations that require a commit before they are actively
     appended. They only create, allocate and preempt the necessary regions data structures before they are finally
@@ -14,7 +14,7 @@ public enum OperationType {
     COMMIT(String.class),
     ROLLBACK(String.class),
     VISUALISE(String.class);
-    OperationType (Class<?>... instructionParameters) {
+    QueryType(Class<?>... instructionParameters) {
         /*
         not used, the classes can be considered to be a reminder how the operations have to be formed
          */

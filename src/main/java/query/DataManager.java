@@ -75,7 +75,6 @@ public class DataManager {
         }
     }
 
-
     public void visualiseDataStore(String key) {
         System.out.printf("%-10s | %-60s%n", "Key", "Value");
         System.out.println("=".repeat(60));

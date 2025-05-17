@@ -10,14 +10,14 @@ public class Instruction {
     and append "status" variable
      */
 
-    public OperationType opType;
+    public QueryType opType;
     public String tableName;
     public Map<String, Integer> rowData;
     private final UUID uuid;
 
     private Map<String, Map<String, Integer>> snapshot;
 
-    public Instruction(OperationType opType, String tableName, Map<String, Integer> rowData) {
+    public Instruction(QueryType opType, String tableName, Map<String, Integer> rowData) {
         this.opType = opType;
         this.tableName = tableName;
         this.rowData = rowData;

@@ -1,7 +1,7 @@
 package database;
 
 import query.Instruction;
-import query.OperationType;
+import query.QueryType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +19,11 @@ public class Parser {
         String command = tokens[0].toUpperCase();
 
         try {
-            OperationType type = OperationType.valueOf(command);
+            QueryType type = QueryType.valueOf(command);
 
             switch (type) {
                 case VISUALISE -> {
-                    return new Instruction(OperationType.VISUALISE, tokens[1], new HashMap<>());
+                    return new Instruction(QueryType.VISUALISE, tokens[1], new HashMap<>());
                 }
                 case INSERT, UPDATE -> {
                     String rowKey = tokens[1];

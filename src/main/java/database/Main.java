@@ -8,10 +8,11 @@ import java.util.Map;
 
 public class Main {
 
+    // TODO: example to show rollback is working
+
     public static void main(String[] args) {
         ExecutionEngine engine = new ExecutionEngine(new DataManager());
         TransactionManager tm = new TransactionManager(engine);
-
 
         Parser parser = new Parser();
         Instruction instruction = parser.parse("insert K1 Number 13");
@@ -20,6 +21,5 @@ public class Main {
         Instruction instruction4 = parser.parse("VISUALISE K1");
 
         tm.runTransaction(instruction, instruction3, instruction2, instruction4);
-
     }
 }

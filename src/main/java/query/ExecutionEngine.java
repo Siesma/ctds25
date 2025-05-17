@@ -1,7 +1,6 @@
 package query;
 
 import java.util.Map;
-import java.util.List;
 import java.util.Stack;
 
 public class ExecutionEngine {
@@ -19,7 +18,7 @@ public class ExecutionEngine {
     /*
     Return a status integer to show whether an instruction has been completed correctly
      */
-    public int execute(Instruction instruction, OperationType opType, String table, Map<String, Integer> row) {
+    public int execute(Instruction instruction, QueryType opType, String table, Map<String, Integer> row) {
         commitHistory.push(instruction);
         switch (opType) {
             case UPDATE:
