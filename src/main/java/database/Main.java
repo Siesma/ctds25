@@ -2,24 +2,29 @@ package database;
 
 import query.*;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Main {
 
-    // TODO: example to show rollback is working
-
     public static void main(String[] args) {
-        ExecutionEngine engine = new ExecutionEngine(new DataManager());
+        DataManager dataManager = new DataManager();
+        ExecutionEngine engine = new ExecutionEngine(dataManager);
         TransactionManager tm = new TransactionManager(engine);
-
         Parser parser = new Parser();
-        Instruction instruction = parser.parse("insert K1 Number 13");
-        Instruction instruction3 = parser.parse("insert K1 Number2 212");
-        Instruction instruction2 = parser.parse("insert K2 N1 1");
-        Instruction instruction4 = parser.parse("VISUALISE K1");
 
-        tm.runTransaction(instruction, instruction3, instruction2, instruction4);
+        Instruction insert1 = parser.parse("INSERT K1 Number 13");
+        Instruction insert2 = parser.parse("INSERT K1 Number2 212");
+        Instruction insert3 = parser.parse("INSERT K2 N1 1");
+        Instruction visualiseBeforeCommit = parser.parse("VISUALISE *");
+
+        System.out.println("Running initial transaction (pending commit):");
+        tm.runTransaction(insert1, insert2, insert3, visualiseBeforeCommit);
+
+        System.out.println("\nCommitting transaction...");
+        Instruction commit = new Instruction(QueryType.COMMIT, null, null);
+        engine.execute(commit);
+
+        System.out.println("\nState after commit:");
+        engine.execute(parser.parse("VISUALISE *"));
     }
 }
