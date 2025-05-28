@@ -2,7 +2,7 @@ package query;
 
 import java.util.*;
 
-public class DataManager {
+public class DataManagerMVCC implements IDataManager {
     private final Map<String, Map<String, Integer>> dataStore = new HashMap<>();
 
     private Map<String, Map<String, Integer>> deepCopy(Map<String, Map<String, Integer>> original) {
@@ -27,7 +27,10 @@ public class DataManager {
         return version;
     }
 
-    public Map<String, Map<String, Integer>> insertDelta(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot) {
+    // renamed from insertDelta for Interfacing
+    public Map<String, Map<String, Integer>> insert(String key,
+                                                    Map<String, Integer> value,
+                                                    Map<String, Map<String, Integer>> snapshot) {
         Map<String, Map<String, Integer>> delta = new HashMap<>();
         Map<String, Integer> rowDelta = new HashMap<>();
 
@@ -50,11 +53,13 @@ public class DataManager {
         return delta;
     }
 
-    public Map<String, Map<String, Integer>> updateDelta(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot) {
-        return insertDelta(key, value, snapshot);
+    // rename from updateDelta for interfacing
+    public Map<String, Map<String, Integer>> update(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot) {
+        return insert(key, value, snapshot);
     }
 
-    public Map<String, Map<String, Integer>> deleteDelta(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot) {
+    // rename from deleteDelta for interfacing
+    public Map<String, Map<String, Integer>> delete(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot) {
         Map<String, Map<String, Integer>> delta = new HashMap<>();
 
         if (value == null) {
@@ -124,6 +129,7 @@ public class DataManager {
     public Map<String, Integer> getRowData(String key) {
         return dataStore.get(key);
     }
+
 
     public void visualiseDataStore(String key) {
         System.out.printf("%-10s | %-60s%n", "Key", "Value");

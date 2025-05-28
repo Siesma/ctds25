@@ -2,12 +2,10 @@ package database;
 
 import query.*;
 
-import java.util.Map;
-
 public class Main {
 
     public static void main(String[] args) {
-        DataManager dataManager = new DataManager();
+        IDataManager dataManager = new DataManagerLock();
         ExecutionEngine engine = new ExecutionEngine(dataManager);
         TransactionManager tm = new TransactionManager(engine);
         Parser parser = new Parser();

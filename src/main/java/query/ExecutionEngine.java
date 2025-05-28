@@ -6,31 +6,35 @@ import java.util.Stack;
 
 public class ExecutionEngine {
 
-    private final DataManager dataManager;
+    private final IDataManager dataManager;
     private final Stack<Instruction> commitHistory;
     private final Stack<Instruction> versionHistory;
 
-    public ExecutionEngine(DataManager dataManager) {
+    public ExecutionEngine(IDataManager dataManager) {
         this.dataManager = dataManager;
         this.commitHistory = new Stack<>();
         this.versionHistory = new Stack<>();
     }
 
-    public int execute(Instruction instruction, QueryType opType, String table, Map<String, Integer> row) {
-        instruction.setPreOperation(dataManager.getSnapshot());
+    protected int execute(Instruction instruction, QueryType opType, String table, Map<String, Integer> row) {
+        try {
+            instruction.setPreOperation(dataManager.getSnapshot());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         Map<String, Map<String, Integer>> delta = null;
         Map<String, Map<String, Integer>> post = null;
 
         switch (opType) {
             case UPDATE:
-                delta = dataManager.updateDelta(table, row, instruction.getPreOperation());
+                delta = dataManager.update(table, row, instruction.getPreOperation());
                 break;
             case DELETE:
-                delta = dataManager.deleteDelta(table, row, instruction.getPreOperation());
+                delta = dataManager.delete(table, row, instruction.getPreOperation());
                 break;
             case INSERT:
-                delta = dataManager.insertDelta(table, row, instruction.getPreOperation());
+                delta = dataManager.insert(table, row, instruction.getPreOperation());
                 break;
             case GET:
                 Map<String, Integer> results = dataManager.select(table);
@@ -46,7 +50,12 @@ public class ExecutionEngine {
                 while (!versionHistory.isEmpty()) {
                     Instruction toCommit = versionHistory.pop();
                     try {
-                        dataManager.applySnapshot(toCommit);
+                        try {
+                            dataManager.applySnapshot(toCommit);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            break;
+                        }
                         commitHistory.push(toCommit);
                     } catch (IllegalStateException e) {
                         System.err.println("Commit failed due to conflict: " + e.getMessage());
@@ -59,10 +68,14 @@ public class ExecutionEngine {
                 return 1;
         }
 
-        post = applyDeltaToSnapshot(instruction.getPreOperation(), delta);
+        try {
+            post = applyDeltaToSnapshot(instruction.getPreOperation(), delta);
+            instruction.setDelta(delta);
+            instruction.setPostOperation(post);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
-        instruction.setDelta(delta);
-        instruction.setPostOperation(post);
 
         versionHistory.push(instruction);
         commitHistory.push(instruction);
@@ -72,6 +85,7 @@ public class ExecutionEngine {
 
     public int execute(Instruction instruction) {
         return execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
+
     }
 
     public void rollback(Instruction instruction, String key) {
@@ -90,7 +104,7 @@ public class ExecutionEngine {
             Instruction rollBackInstruction = commitHistory.pop();
             dataManager.restoreSnapshot(rollBackInstruction);
         }
-        
+
         while (!relevantCommits.isEmpty()) {
             Instruction instr = relevantCommits.pop();
             execute(instr);
@@ -98,8 +112,8 @@ public class ExecutionEngine {
     }
 
     private Map<String, Map<String, Integer>> applyDeltaToSnapshot(
-        Map<String, Map<String, Integer>> base,
-        Map<String, Map<String, Integer>> delta
+            Map<String, Map<String, Integer>> base,
+            Map<String, Map<String, Integer>> delta
     ) {
         Map<String, Map<String, Integer>> result = new HashMap<>();
         for (Map.Entry<String, Map<String, Integer>> entry : base.entrySet()) {
