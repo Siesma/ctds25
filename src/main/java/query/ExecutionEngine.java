@@ -15,26 +15,35 @@ public class ExecutionEngine {
         this.commitHistory = new Stack<>();
         this.versionHistory = new Stack<>();
     }
+
     // executes the instruction, please dont use this method and use the overloaded "execute" method so that we can obtain timing values
+    public int execute(Instruction instruction) {
+        instruction.setSetupTime(Timestamp.get());
+        int result = execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
+        instruction.setExecutionTime(Timestamp.get());
+        return result;
+    }
+
+    // Main execution logic
     private int execute(Instruction instruction, QueryType opType, String table, Map<String, Integer> row) {
         try {
             instruction.setPreOperation(dataManager.getSnapshot());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Snapshot error: " + e.getMessage());
         }
 
         Map<String, Map<String, Integer>> delta = null;
         Map<String, Map<String, Integer>> post = null;
 
         switch (opType) {
+            case INSERT:
+                delta = dataManager.insert(table, row, instruction.getPreOperation());
+                break;
             case UPDATE:
                 delta = dataManager.update(table, row, instruction.getPreOperation());
                 break;
             case DELETE:
                 delta = dataManager.delete(table, row, instruction.getPreOperation());
-                break;
-            case INSERT:
-                delta = dataManager.insert(table, row, instruction.getPreOperation());
                 break;
             case GET:
                 Map<String, Integer> results = dataManager.select(table);
@@ -43,25 +52,11 @@ public class ExecutionEngine {
             case VISUALISE:
                 dataManager.visualiseDataStore(table);
                 return 0;
+            case COMMIT:
+                handleCommit(table);
+                return 0;
             case ROLLBACK:
                 rollback(instruction, table);
-                return 0;
-            case COMMIT:
-                while (!versionHistory.isEmpty()) {
-                    Instruction toCommit = versionHistory.pop();
-                    try {
-                        try {
-                            dataManager.applySnapshot(toCommit);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                            break;
-                        }
-                        commitHistory.push(toCommit);
-                    } catch (IllegalStateException e) {
-                        System.err.println("Commit failed due to conflict: " + e.getMessage());
-                        return 1;
-                    }
-                }
                 return 0;
             default:
                 System.out.println("Operation not supported yet: " + opType);
@@ -73,45 +68,56 @@ public class ExecutionEngine {
             instruction.setDelta(delta);
             instruction.setPostOperation(post);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Delta application error: " + e.getMessage());
         }
 
         versionHistory.push(instruction);
-        commitHistory.push(instruction);
-
         return 0;
     }
 
-    public int execute(Instruction instruction) {
-        instruction.setSetupTime(Timestamp.get());
-        int result = execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
-        instruction.setExecutionTime(Timestamp.get());
-        return result;
-    }
-
-    public void rollback(Instruction instruction, String key) {
-        if (commitHistory.isEmpty()) {
-            return;
-        }
-
-        commitHistory.push(instruction);
-        Stack<Instruction> relevantCommits = new Stack<>();
-
-        while (!commitHistory.isEmpty() && !commitHistory.peek().getUuid().toString().equals(key)) {
-            relevantCommits.push(commitHistory.pop());
-        }
-
-        if (!commitHistory.isEmpty()) {
-            Instruction rollBackInstruction = commitHistory.pop();
-            dataManager.restoreSnapshot(rollBackInstruction);
-        }
-
-        while (!relevantCommits.isEmpty()) {
-            Instruction instr = relevantCommits.pop();
-            execute(instr);
+    private void handleCommit(String commitId) {
+        while (!versionHistory.isEmpty()) {
+            Instruction toCommit = versionHistory.pop();
+            try {
+                dataManager.applySnapshot(toCommit);
+                toCommit.setCommitID(commitId); // Tag the instruction with the commit ID
+                commitHistory.push(toCommit);
+            } catch (Exception e) {
+                System.out.println("Commit apply error: " + e.getMessage());
+                break;
+            }
         }
     }
 
+
+    public void rollback(Instruction rollbackInstruction, String rollbackId) {
+        if (commitHistory.isEmpty()) return;
+
+        commitHistory.push(rollbackInstruction);
+        Stack<Instruction> toReplay = new Stack<>();
+        boolean found = false;
+
+        while (!commitHistory.isEmpty()) {
+            Instruction top = commitHistory.pop();
+            if (rollbackId.equals(top.getCommitID())) {
+                dataManager.restoreSnapshot(top);
+                found = true;
+                break;
+            } else {
+                toReplay.push(top);
+            }
+        }
+
+        while (!toReplay.isEmpty()) {
+            execute(toReplay.pop());
+        }
+
+        if (!found) {
+            System.out.println("Rollback failed: no commit with ID " + rollbackId);
+        }
+    }
+
+    // Applies a delta to a snapshot to produce a post-operation view
     private Map<String, Map<String, Integer>> applyDeltaToSnapshot(
             Map<String, Map<String, Integer>> base,
             Map<String, Map<String, Integer>> delta

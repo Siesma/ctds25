@@ -51,11 +51,11 @@ public class Parser {
                     return new Instruction(type, target, null);
                 }
                 case COMMIT -> {
-                    return new Instruction(QueryType.COMMIT, null, null);
+                    return new Instruction(QueryType.COMMIT, tokens[1], null);
                 }
                 case ROLLBACK -> {
                     // TODO: Fix parameter
-                    return new Instruction(QueryType.ROLLBACK, null, null);
+                    return new Instruction(QueryType.ROLLBACK, tokens[1], null);
                 }
                 default -> {
                     System.err.println("Unsupported operation: " + command);

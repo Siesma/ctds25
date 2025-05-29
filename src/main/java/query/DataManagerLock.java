@@ -8,6 +8,10 @@ public class DataManagerLock implements IDataManager {
     private final Map<String, Map<String, Integer>> dataStore = new ConcurrentHashMap<>();
     private final Map<String, ReentrantReadWriteLock> locks = new ConcurrentHashMap<>();
 
+    public Map<String, Map<String, Integer>> getDataStore () {
+        return dataStore;
+    }
+
     private ReentrantReadWriteLock getLock(String key) {
         return locks.computeIfAbsent(key, k -> new ReentrantReadWriteLock());
     }
@@ -33,22 +37,31 @@ public class DataManagerLock implements IDataManager {
         ReentrantReadWriteLock lock = getLock(key);
         lock.writeLock().lock();
         try {
-            if (!dataStore.containsKey(key)) return Map.of();
+            if (!dataStore.containsKey(key)) return new HashMap<>();
+
+            Map<String, Map<String, Integer>> result = new HashMap<>();
 
             if (value == null) {
                 dataStore.remove(key);
-                return Map.of(key, null);
+                result.put(key, null);
             } else {
                 Map<String, Integer> row = dataStore.get(key);
+                Map<String, Integer> deletedCols = new HashMap<>();
                 for (String col : value.keySet()) {
-                    row.remove(col);
+                    if (row.containsKey(col)) {
+                        deletedCols.put(col, null);
+                        row.remove(col);
+                    }
                 }
-                return Map.of(key, new HashMap<>(row));
+                result.put(key, deletedCols);
             }
+
+            return result;
         } finally {
             lock.writeLock().unlock();
         }
     }
+
 
     public Map<String, Integer> select(String key) {
         ReentrantReadWriteLock lock = getLock(key);
@@ -60,22 +73,5 @@ public class DataManagerLock implements IDataManager {
         }
     }
 
-    public void visualiseDataStore(String key) {
-        System.out.printf("%-10s | %-60s%n", "Key", "Value");
-        System.out.println("=".repeat(60));
-        for (Map.Entry<String, Map<String, Integer>> entry : dataStore.entrySet()) {
-            String outerKey = entry.getKey();
-            if (!(outerKey.equalsIgnoreCase(key) || key.equals("*"))) {
-                continue;
-            }
-            Map<String, Integer> innerMap = entry.getValue();
-            System.out.printf("%-10s | ", outerKey);
-            StringBuilder innerBuilder = new StringBuilder();
-            for (Map.Entry<String, Integer> innerEntry : innerMap.entrySet()) {
-                innerBuilder.append(String.format("[%-8s: %-5d] ", innerEntry.getKey(), innerEntry.getValue()));
-            }
-            System.out.println(innerBuilder.toString().trim());
-        }
-    }
 
 }

@@ -5,6 +5,10 @@ import java.util.*;
 public class DataManagerMVCC implements IDataManager {
     private final Map<String, Map<String, Integer>> dataStore = new HashMap<>();
 
+    public Map<String, Map<String, Integer>> getDataStore () {
+        return dataStore;
+    }
+
     private Map<String, Map<String, Integer>> deepCopy(Map<String, Map<String, Integer>> original) {
         Map<String, Map<String, Integer>> copy = new HashMap<>();
         for (Map.Entry<String, Map<String, Integer>> entry : original.entrySet()) {
@@ -128,27 +132,5 @@ public class DataManagerMVCC implements IDataManager {
 
     public Map<String, Integer> getRowData(String key) {
         return dataStore.get(key);
-    }
-
-
-    public void visualiseDataStore(String key) {
-        System.out.printf("%-10s | %-60s%n", "Key", "Value");
-        System.out.println("=".repeat(60));
-
-        for (Map.Entry<String, Map<String, Integer>> entry : dataStore.entrySet()) {
-            String outerKey = entry.getKey();
-            if (!(outerKey.equalsIgnoreCase(key) || key.equals("*"))) {
-                continue;
-            }
-            Map<String, Integer> innerMap = entry.getValue();
-
-            System.out.printf("%-10s | ", outerKey);
-            StringBuilder innerBuilder = new StringBuilder();
-            for (Map.Entry<String, Integer> innerEntry : innerMap.entrySet()) {
-                innerBuilder.append(String.format("[%-8s: %-5d] ", innerEntry.getKey(), innerEntry.getValue()));
-            }
-
-            System.out.println(innerBuilder.toString().trim());
-        }
     }
 }

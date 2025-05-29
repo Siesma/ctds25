@@ -5,6 +5,10 @@ import java.util.*;
 public class DataManagerSync implements IDataManager {
     private final Map<String, Map<String, Integer>> dataStore = new HashMap<>();
 
+    public Map<String, Map<String, Integer>> getDataStore() {
+        return dataStore;
+    }
+
     @Override
     public synchronized Map<String, Map<String, Integer>> insert(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> unused) {
         dataStore.putIfAbsent(key, new HashMap<>());
@@ -38,22 +42,4 @@ public class DataManagerSync implements IDataManager {
         return new HashMap<>(dataStore.getOrDefault(key, new HashMap<>()));
     }
 
-    @Override
-    public synchronized void visualiseDataStore(String key) {
-        System.out.printf("%-10s | %-60s%n", "Key", "Value");
-        System.out.println("=".repeat(60));
-        for (Map.Entry<String, Map<String, Integer>> entry : dataStore.entrySet()) {
-            String outerKey = entry.getKey();
-            if (!(outerKey.equalsIgnoreCase(key) || key.equals("*"))) {
-                continue;
-            }
-            Map<String, Integer> innerMap = entry.getValue();
-            System.out.printf("%-10s | ", outerKey);
-            StringBuilder innerBuilder = new StringBuilder();
-            for (Map.Entry<String, Integer> innerEntry : innerMap.entrySet()) {
-                innerBuilder.append(String.format("[%-8s: %-5d] ", innerEntry.getKey(), innerEntry.getValue()));
-            }
-            System.out.println(innerBuilder.toString().trim());
-        }
-    }
 }

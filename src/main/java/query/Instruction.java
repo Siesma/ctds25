@@ -12,6 +12,8 @@ public class Instruction {
     private Timestamp queueTime;
     private Timestamp setupTime;
     private Timestamp executionTime;
+    // this keeps track to determine to which commit this instruction belong
+    private String commitID;
 
     private Map<String, Map<String, Integer>> preOperation;  // snapshot before operation
     private Map<String, Map<String, Integer>> postOperation; // full result after applying delta
@@ -83,4 +85,13 @@ public class Instruction {
     public void setExecutionTime(Timestamp executionTime) {
         this.executionTime = executionTime;
     }
+
+    public String getCommitID() {
+        return commitID;
+    }
+
+    public void setCommitID(String commitID) {
+        this.commitID = commitID;
+    }
+
 }
