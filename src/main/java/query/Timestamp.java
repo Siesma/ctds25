@@ -12,4 +12,7 @@ public class Timestamp {
         return new Timestamp();
     }
 
+    public long getTime() {
+        return date;
+    }
 }

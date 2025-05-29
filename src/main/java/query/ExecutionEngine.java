@@ -90,7 +90,7 @@ public class ExecutionEngine {
     }
 
 
-    public void rollback(Instruction rollbackInstruction, String rollbackId) {
+    public synchronized void rollback(Instruction rollbackInstruction, String rollbackId) {
         if (commitHistory.isEmpty()) return;
 
         commitHistory.push(rollbackInstruction);
