@@ -2,27 +2,61 @@ package database;
 
 import query.*;
 
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Main {
 
     public static void main(String[] args) {
-        IDataManager dataManager = new DataManagerLock();
+        if (args.length < 2) {
+            System.err.println("Usage: <benchmark_dir> <num_threads>");
+            System.exit(1);
+        }
+
+        String benchmarkDir = args[0];
+        int numThreads = Integer.parseInt(args[1]);
+
+        IDataManager dataManager = new DataManagerMVCC();
         ExecutionEngine engine = new ExecutionEngine(dataManager);
         TransactionManager tm = new TransactionManager(engine);
         Parser parser = new Parser();
 
-        Instruction insert1 = parser.parse("INSERT K1 Number 13");
-        Instruction insert2 = parser.parse("INSERT K1 Number2 212");
-        Instruction insert3 = parser.parse("INSERT K2 N1 1");
-        Instruction visualiseBeforeCommit = parser.parse("VISUALISE *");
+        List<Thread> threads = new ArrayList<>();
 
-        System.out.println("Running initial transaction (pending commit):");
-        tm.runTransaction(insert1, insert2, insert3, visualiseBeforeCommit);
+        for (int i = 0; i < numThreads; i++) {
+            String filePath = String.format("%s/T%d", benchmarkDir, i + 1);
+            Thread t = new Thread(() -> {
+                List<Instruction> instructions = new ArrayList<>();
 
-        System.out.println("\nCommitting transaction...");
-        Instruction commit = new Instruction(QueryType.COMMIT, null, null);
-        engine.execute(commit);
+                try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.trim().isEmpty()) continue;
+                        instructions.add(parser.parse(line));
+                    }
+                } catch (IOException e) {
+                    System.err.println("Error reading file: " + filePath);
+                    e.printStackTrace();
+                    return;
+                }
 
-        System.out.println("\nState after commit:");
+                instructions.forEach(tm::runTransaction);
+            });
+
+            threads.add(t);
+            t.start();
+        }
+
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("\nFinal state after all threads complete:");
         engine.execute(parser.parse("VISUALISE *"));
     }
 }
