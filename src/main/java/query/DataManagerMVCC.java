@@ -1,9 +1,10 @@
 package query;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataManagerMVCC implements IDataManager {
-    private final Map<String, Map<String, Integer>> dataStore = new HashMap<>();
+    private final Map<String, Map<String, Integer>> dataStore = new ConcurrentHashMap<>();
 
     public Map<String, Map<String, Integer>> getDataStore () {
         return dataStore;
@@ -37,7 +38,9 @@ public class DataManagerMVCC implements IDataManager {
                                                     Map<String, Map<String, Integer>> snapshot) {
         Map<String, Map<String, Integer>> delta = new HashMap<>();
         Map<String, Integer> rowDelta = new HashMap<>();
-
+        if(snapshot == null) {
+            System.out.println("::::::::::::::::::::::::::::::::::::.");
+        }
         if (!snapshot.containsKey(key)) {
             delta.put(key, new HashMap<>(value));
         } else {
