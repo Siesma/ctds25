@@ -15,8 +15,8 @@ public class ExecutionEngine {
         this.commitHistory = new Stack<>();
         this.versionHistory = new Stack<>();
     }
-
-    protected int execute(Instruction instruction, QueryType opType, String table, Map<String, Integer> row) {
+    // executes the instruction, please dont use this method and use the overloaded "execute" method so that we can obtain timing values
+    private int execute(Instruction instruction, QueryType opType, String table, Map<String, Integer> row) {
         try {
             instruction.setPreOperation(dataManager.getSnapshot());
         } catch (Exception e) {
@@ -76,7 +76,6 @@ public class ExecutionEngine {
             System.out.println(e.getMessage());
         }
 
-
         versionHistory.push(instruction);
         commitHistory.push(instruction);
 
@@ -84,8 +83,10 @@ public class ExecutionEngine {
     }
 
     public int execute(Instruction instruction) {
-        return execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
-
+        instruction.setSetupTime(Timestamp.get());
+        int result = execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
+        instruction.setExecutionTime(Timestamp.get());
+        return result;
     }
 
     public void rollback(Instruction instruction, String key) {

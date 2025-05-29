@@ -40,8 +40,17 @@ public interface IDataManager {
     # MVCC Exclusive function #
     ###########################
      */
-    Map<String, Map<String, Integer>> getSnapshot();
-    void applySnapshot(Instruction instruction);
-    void restoreSnapshot(Instruction instruction);
+    default Map<String, Map<String, Integer>> getSnapshot() {
+        throw new UnsupportedOperationException(getErrorMessage("getSnapshot"));
+    }
+    default void applySnapshot(Instruction instruction) {
+        throw new UnsupportedOperationException(getErrorMessage("applySnapshot"));
+    }
+    default void restoreSnapshot(Instruction instruction) {
+        throw new UnsupportedOperationException(getErrorMessage("restoreSnapshot"));
+    }
 
+    private String getErrorMessage(String method) {
+        return String.format("Method %s is only supported in MVCC manager.", method);
+    }
 }

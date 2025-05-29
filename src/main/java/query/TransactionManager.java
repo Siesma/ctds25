@@ -15,7 +15,10 @@ public class TransactionManager {
     }
 
     public void runTransaction(Instruction... instructions) {
-        Arrays.asList(instructions).forEach(executionEngine::execute);
+        Arrays.asList(instructions).forEach(e -> {
+            e.setQueueTime(Timestamp.get());
+            executionEngine.execute(e);
+        });
     }
 
     public synchronized String getUUIDByString(String input) {

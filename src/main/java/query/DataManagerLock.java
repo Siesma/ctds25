@@ -78,24 +78,4 @@ public class DataManagerLock implements IDataManager {
         }
     }
 
-    // MVCC-specific methods - no-op or unsupported
-    public Map<String, Map<String, Integer>> getSnapshot() {
-        String func = "getSnapshot";
-        throw new UnsupportedOperationException(getErrorMessage(func));
-    }
-
-    public void applySnapshot(Instruction instruction) {
-        String func = "applySnapshot";
-        throw new UnsupportedOperationException(getErrorMessage(func));
-    }
-
-    public void restoreSnapshot(Instruction instruction) {
-        String func = "restoreSnapshot";
-        throw new UnsupportedOperationException(getErrorMessage(func));
-    }
-
-    private String getErrorMessage (String func) {
-        return String.format("Method %s is only supported in MVCC manager.", func);
-    }
-
 }

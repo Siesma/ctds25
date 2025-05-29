@@ -9,6 +9,9 @@ public class Instruction {
     public String tableName;
     public Map<String, Integer> rowData;
     private final UUID uuid;
+    private Timestamp queueTime;
+    private Timestamp setupTime;
+    private Timestamp executionTime;
 
     private Map<String, Map<String, Integer>> preOperation;  // snapshot before operation
     private Map<String, Map<String, Integer>> postOperation; // full result after applying delta
@@ -55,5 +58,29 @@ public class Instruction {
     @Override
     public String toString() {
         return String.format("%s %s {%s}", opType, tableName, rowData.toString().replaceAll("\n", ""));
+    }
+
+    public Timestamp getQueueTime() {
+        return queueTime;
+    }
+
+    public void setQueueTime(Timestamp queueTime) {
+        this.queueTime = queueTime;
+    }
+
+    public Timestamp getSetupTime() {
+        return setupTime;
+    }
+
+    public void setSetupTime(Timestamp setupTime) {
+        this.setupTime = setupTime;
+    }
+
+    public Timestamp getExecutionTime() {
+        return executionTime;
+    }
+
+    public void setExecutionTime(Timestamp executionTime) {
+        this.executionTime = executionTime;
     }
 }
