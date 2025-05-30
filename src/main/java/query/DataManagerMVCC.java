@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DataManagerMVCC implements IDataManager {
     private final Map<String, Map<String, Integer>> dataStore = new ConcurrentHashMap<>();
 
-    public Map<String, Map<String, Integer>> getDataStore () {
+    public Map<String, Map<String, Integer>> getDataStore() {
         return dataStore;
     }
 
@@ -38,7 +38,7 @@ public class DataManagerMVCC implements IDataManager {
                                                     Map<String, Map<String, Integer>> snapshot) {
         Map<String, Map<String, Integer>> delta = new HashMap<>();
         Map<String, Integer> rowDelta = new HashMap<>();
-        if(snapshot == null) {
+        if (snapshot == null) {
             System.out.println("::::::::::::::::::::::::::::::::::::.");
         }
         if (!snapshot.containsKey(key)) {
@@ -88,6 +88,36 @@ public class DataManagerMVCC implements IDataManager {
 
         return delta;
     }
+
+    public Map<String, Map<String, Integer>> increment(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot) {
+        return computeDelta(key, value, snapshot, 1);
+    }
+
+    public Map<String, Map<String, Integer>> decrement(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot) {
+        return computeDelta(key, value, snapshot, -1);
+    }
+
+
+    private Map<String, Map<String, Integer>> computeDelta(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> snapshot, int increment) {
+        Map<String, Map<String, Integer>> delta = new HashMap<>();
+        Map<String, Integer> rowDelta = new HashMap<>();
+
+        Map<String, Integer> currentRow = snapshot.getOrDefault(key, new HashMap<>());
+
+        for (Map.Entry<String, Integer> entry : value.entrySet()) {
+            int currentValue = currentRow.getOrDefault(entry.getKey(), 0);
+
+            int newValue = currentValue + (entry.getValue() * increment);
+            rowDelta.put(entry.getKey(), newValue);
+        }
+
+        if (!rowDelta.isEmpty()) {
+            delta.put(key, rowDelta);
+        }
+
+        return delta;
+    }
+
 
     public void applySnapshot(Instruction instruction) {
         Map<String, Map<String, Integer>> expected = instruction.getPreOperation();

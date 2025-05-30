@@ -64,6 +64,18 @@ public interface IDataManager {
             Map<String, Map<String, Integer>> snapshot /*not necessary for lock based*/
     );
 
+    Map<String, Map<String, Integer>> decrement(
+            String table,
+            Map<String, Integer> row,
+            Map<String, Map<String, Integer>> snapshot /*not necessary for lock based*/
+    );
+
+    Map<String, Map<String, Integer>> increment(
+            String table,
+            Map<String, Integer> row,
+            Map<String, Map<String, Integer>> snapshot /*not necessary for lock based*/
+    );
+
     /*
     ###########################
     # MVCC Exclusive function #

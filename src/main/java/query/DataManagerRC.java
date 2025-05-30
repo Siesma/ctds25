@@ -17,6 +17,16 @@ public class DataManagerRC implements IDataManager {
     }
 
     @Override
+    public Map<String, Map<String, Integer>> decrement(String table, Map<String, Integer> row, Map<String, Map<String, Integer>> snapshot) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Map<String, Map<String, Integer>> increment(String table, Map<String, Integer> row, Map<String, Map<String, Integer>> snapshot) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public Map<String, Map<String, Integer>> update(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> unused) {
         return insert(key, value, unused);
     }

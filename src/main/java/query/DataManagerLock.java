@@ -62,6 +62,37 @@ public class DataManagerLock implements IDataManager {
         }
     }
 
+    public Map<String, Map<String, Integer>> increment(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> unused) {
+        return addOrSubtract(key, value, 1);
+    }
+
+    public Map<String, Map<String, Integer>> decrement(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> unused) {
+        return addOrSubtract(key, value, -1);
+    }
+
+    private Map<String, Map<String, Integer>> addOrSubtract(String key, Map<String, Integer> deltaMap, int increment) {
+        ReentrantReadWriteLock lock = getLock(key);
+        lock.writeLock().lock();
+        try {
+            dataStore.putIfAbsent(key, new HashMap<>());
+            Map<String, Integer> row = dataStore.get(key);
+            Map<String, Integer> changed = new HashMap<>();
+
+            for (Map.Entry<String, Integer> entry : deltaMap.entrySet()) {
+                int newValue =
+                        row.getOrDefault(entry.getKey(), 0) +
+                                (entry.getValue() * increment);
+                row.put(entry.getKey(), newValue);
+                changed.put(entry.getKey(), newValue);
+            }
+
+            return Map.of(key, changed);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+
 
     public Map<String, Integer> select(String key) {
         ReentrantReadWriteLock lock = getLock(key);

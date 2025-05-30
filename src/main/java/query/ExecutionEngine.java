@@ -42,6 +42,12 @@ public class ExecutionEngine {
             case UPDATE:
                 delta = dataManager.update(table, row, instruction.getPreOperation());
                 break;
+            case INCREMENT:
+                delta = dataManager.increment(table, row, instruction.getPreOperation());
+                break;
+            case DECREMENT:
+                delta = dataManager.decrement(table, row, instruction.getPreOperation());
+                break;
             case DELETE:
                 delta = dataManager.delete(table, row, instruction.getPreOperation());
                 break;
@@ -56,7 +62,7 @@ public class ExecutionEngine {
                 handleCommit(table);
                 return 0;
             case ROLLBACK:
-                rollback(instruction, table);
+                handleRollback(instruction, table);
                 return 0;
             default:
                 System.out.println("Operation not supported yet: " + opType);
@@ -90,7 +96,7 @@ public class ExecutionEngine {
     }
 
 
-    public synchronized void rollback(Instruction rollbackInstruction, String rollbackId) {
+    public synchronized void handleRollback(Instruction rollbackInstruction, String rollbackId) {
         if (commitHistory.isEmpty()) return;
 
         commitHistory.push(rollbackInstruction);

@@ -9,6 +9,17 @@ public class DataManagerSync implements IDataManager {
         return dataStore;
     }
 
+
+    @Override
+    public Map<String, Map<String, Integer>> decrement(String table, Map<String, Integer> row, Map<String, Map<String, Integer>> snapshot) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Map<String, Map<String, Integer>> increment(String table, Map<String, Integer> row, Map<String, Map<String, Integer>> snapshot) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     @Override
     public synchronized Map<String, Map<String, Integer>> insert(String key, Map<String, Integer> value, Map<String, Map<String, Integer>> unused) {
         dataStore.putIfAbsent(key, new HashMap<>());

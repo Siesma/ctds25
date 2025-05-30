@@ -11,6 +11,8 @@ public enum QueryType {
     UPDATE(),
     DELETE(),
     GET(),
+    INCREMENT(),
+    DECREMENT(),
     COMMIT(String.class),
     ROLLBACK(String.class),
     VISUALISE(String.class);

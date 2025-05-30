@@ -25,7 +25,7 @@ public class Parser {
                 case VISUALISE -> {
                     return new Instruction(QueryType.VISUALISE, tokens[1], new HashMap<>());
                 }
-                case INSERT, UPDATE -> {
+                case INSERT, UPDATE, INCREMENT, DECREMENT -> {
                     String rowKey = tokens[1];
                     String colKey = tokens[2];
                     int value = Integer.parseInt(tokens[3]);
@@ -34,7 +34,6 @@ public class Parser {
                     rowData.put(colKey, value);
                     return new Instruction(type, rowKey, rowData);
                 }
-
                 case DELETE, GET -> {
                     String target = tokens[1];
                     /*
@@ -54,7 +53,7 @@ public class Parser {
                     return new Instruction(QueryType.COMMIT, tokens[1], null);
                 }
                 case ROLLBACK -> {
-                    // TODO: Fix parameter
+                    // TODO: Fix parameter5
                     return new Instruction(QueryType.ROLLBACK, tokens[1], null);
                 }
                 default -> {
