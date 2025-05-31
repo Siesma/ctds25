@@ -40,6 +40,7 @@ public class DataManagerMVCC implements IDataManager {
         Map<String, Integer> rowDelta = new HashMap<>();
         if (snapshot == null) {
             System.out.println("::::::::::::::::::::::::::::::::::::.");
+            snapshot = new HashMap<>();
         }
         if (!snapshot.containsKey(key)) {
             delta.put(key, new HashMap<>(value));

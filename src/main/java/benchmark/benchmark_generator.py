@@ -3,7 +3,7 @@ import string
 import os
 
 # --- Operation types ---
-VOLATILE_OPS = ["INSERT", "UPDATE", "DELETE"]
+VOLATILE_OPS = ["INSERT", "UPDATE", "DELETE", "INCREMENT", "DECREMENT"]
 STABLE_OPS = ["GET", "VISUALISE"]
 CONTROL_OPS = ["COMMIT", "ROLLBACK"]
 ALL_OPS = VOLATILE_OPS + STABLE_OPS + CONTROL_OPS
@@ -35,6 +35,8 @@ def choose_table():
 
 def generate_insert(): return f"INSERT {choose_table()} {random.choice(columns)} {random.randint(100, 1000)}"
 def generate_update(): return f"UPDATE {choose_table()} {random.choice(columns)} {random.randint(1000, 2000)}"
+def generate_increment(): return f"INCREMENT {choose_table()} {random.choice(columns)} {random.randint(1000, 2000)}"
+def generate_decrement(): return f"DECREMENT {choose_table()} {random.choice(columns)} {random.randint(1000, 2000)}"
 def generate_delete(): return f"DELETE {choose_table()} {random.choice(columns)} 0"
 def generate_get(): return f"GET {choose_table()}"
 def generate_visualise(): return f"VISUALISE {choose_table()}"
@@ -60,6 +62,8 @@ def generate_query(op, commits):
         return {
             "INSERT": generate_insert,
             "UPDATE": generate_update,
+            "DECREMENT": generate_decrement,
+            "INCREMENT": generate_increment,
             "DELETE": generate_delete,
             "GET": generate_get,
             "VISUALISE": generate_visualise
@@ -85,4 +89,4 @@ def write_tasksets(n, queries_per_task, output_dir="tasksets"):
     print("Final table pool:", table_pool)
 
 if __name__ == "__main__":
-    write_tasksets(n=5, queries_per_task=1500)
+    write_tasksets(n=5, queries_per_task=5000)

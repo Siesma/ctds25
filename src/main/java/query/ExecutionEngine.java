@@ -17,11 +17,8 @@ public class ExecutionEngine {
     }
 
     // executes the instruction, please dont use this method and use the overloaded "execute" method so that we can obtain timing values
-    public int execute(Instruction instruction) {
-        instruction.setSetupTime(Timestamp.get());
-        int result = execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
-        instruction.setExecutionTime(Timestamp.get());
-        return result;
+    public int executeSafe(Instruction instruction) {
+        return execute(instruction, instruction.opType, instruction.tableName, instruction.rowData);
     }
 
     // Main execution logic
@@ -42,14 +39,14 @@ public class ExecutionEngine {
             case UPDATE:
                 delta = dataManager.update(table, row, instruction.getPreOperation());
                 break;
-            case INCREMENT:
-                delta = dataManager.increment(table, row, instruction.getPreOperation());
+            case DELETE:
+                delta = dataManager.delete(table, row, instruction.getPreOperation());
                 break;
             case DECREMENT:
                 delta = dataManager.decrement(table, row, instruction.getPreOperation());
                 break;
-            case DELETE:
-                delta = dataManager.delete(table, row, instruction.getPreOperation());
+            case INCREMENT:
+                delta = dataManager.increment(table, row, instruction.getPreOperation());
                 break;
             case GET:
                 Map<String, Integer> results = dataManager.select(table);
@@ -62,7 +59,7 @@ public class ExecutionEngine {
                 handleCommit(table);
                 return 0;
             case ROLLBACK:
-                handleRollback(instruction, table);
+                rollback(instruction, table);
                 return 0;
             default:
                 System.out.println("Operation not supported yet: " + opType);
@@ -96,7 +93,7 @@ public class ExecutionEngine {
     }
 
 
-    public synchronized void handleRollback(Instruction rollbackInstruction, String rollbackId) {
+    public synchronized void rollback(Instruction rollbackInstruction, String rollbackId) {
         if (commitHistory.isEmpty()) return;
 
         commitHistory.push(rollbackInstruction);
@@ -115,7 +112,7 @@ public class ExecutionEngine {
         }
 
         while (!toReplay.isEmpty()) {
-            execute(toReplay.pop());
+            executeSafe(toReplay.pop());
         }
 
         if (!found) {

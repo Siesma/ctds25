@@ -1,14 +1,18 @@
 package query;
 
+import java.sql.SQLOutput;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Instruction {
 
+    private static final AtomicInteger counter = new AtomicInteger(0);
     public QueryType opType;
     public String tableName;
     public Map<String, Integer> rowData;
     private final UUID uuid;
+    public final int id;
     private Timestamp queueTime;
     private Timestamp setupTime;
     private Timestamp executionTime;
@@ -24,6 +28,7 @@ public class Instruction {
         this.tableName = tableName;
         this.rowData = rowData;
         this.uuid = UUID.randomUUID();
+        this.id = counter.incrementAndGet();
     }
 
     public UUID getUuid() {
@@ -59,7 +64,7 @@ public class Instruction {
 
     @Override
     public String toString() {
-        return String.format("%s %s {%s}", opType, tableName, rowData.toString().replaceAll("\n", ""));
+        return String.format("%s %s {%s}", opType, tableName, rowData == null ? "<>" : rowData.toString().replaceAll("\n", ""));
     }
 
     public Timestamp getQueueTime() {
@@ -92,6 +97,23 @@ public class Instruction {
 
     public void setCommitID(String commitID) {
         this.commitID = commitID;
+    }
+
+    public int printMissingData() {
+        if (this.setupTime != null && this.queueTime != null && this.executionTime != null) {
+            return 0;
+        }
+        System.out.printf("Instruction with ID %s is invalid: %s\n", id, toString());
+        if (this.setupTime == null) {
+            System.out.printf("\tSetuptime is null%n");
+        }
+        if (this.queueTime == null) {
+            System.out.printf("\tQueuetime is null%n");
+        }
+        if (this.executionTime == null) {
+            System.out.printf("\tExecutiontime is null%n");
+        }
+        return 1;
     }
 
 }

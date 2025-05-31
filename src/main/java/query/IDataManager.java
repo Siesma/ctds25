@@ -1,6 +1,8 @@
 package query;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface IDataManager {
 
@@ -13,28 +15,32 @@ public interface IDataManager {
     Map<String, Map<String, Integer>> getDataStore();
 
     default void visualiseDataStore(String key) {
-        synchronized (getDataStore()) {
-            System.out.printf("%-10s | %-60s%n", "Key", "Value");
-            System.out.println("=".repeat(60));
+        System.out.printf("%-10s | %-60s%n", "Key", "Value");
+        System.out.println("=".repeat(60));
 
-            for (Map.Entry<String, Map<String, Integer>> entry : getDataStore().entrySet()) {
-                String outerKey = entry.getKey();
-                if (!(outerKey.equalsIgnoreCase(key) || key.equals("*"))) {
-                    continue;
-                }
+        Map<String, Map<String, Integer>> safeSnapshot = new ConcurrentHashMap<>();
 
-                Map<String, Integer> innerMap = entry.getValue();
-                System.out.printf("%-10s | ", outerKey);
-                StringBuilder innerBuilder = new StringBuilder();
-                for (Map.Entry<String, Integer> innerEntry : innerMap.entrySet()) {
-                    innerBuilder.append(String.format("[%-8s: %-5d] ", innerEntry.getKey(), innerEntry.getValue()));
-                }
+        getDataStore().forEach((outerKey, innerMap) -> {
+            Map<String, Integer> innerCopy = new ConcurrentHashMap<>();
+            innerMap.forEach((k, v) -> innerCopy.put(k, v));
+            safeSnapshot.put(outerKey, innerCopy);
+        });
 
-                System.out.println(innerBuilder.toString().trim());
+        for (Map.Entry<String, Map<String, Integer>> entry : safeSnapshot.entrySet()) {
+            String outerKey = entry.getKey();
+            if (!(outerKey.equalsIgnoreCase(key) || key.equals("*"))) {
+                continue;
             }
+
+            System.out.printf("%-10s | ", outerKey);
+            StringBuilder innerBuilder = new StringBuilder();
+
+            for (Map.Entry<String, Integer> innerEntry : entry.getValue().entrySet()) {
+                innerBuilder.append(String.format("[%-8s: %-5d] ", innerEntry.getKey(), innerEntry.getValue()));
+            }
+
+            System.out.println(innerBuilder.toString().trim());
         }
-
-
     }
 
     Map<String, Integer> select(String table);
