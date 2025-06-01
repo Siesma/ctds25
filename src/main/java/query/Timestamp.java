@@ -15,4 +15,9 @@ public class Timestamp {
     public long getTime() {
         return date;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s", date);
+    }
 }

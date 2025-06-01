@@ -46,10 +46,12 @@ public class Main {
         for (int i = 0; i < numThreads; i++) {
             threadInstructions.add(i, new ArrayList<>());
             String filePath = String.format("%s/T%d", benchmarkDir, i + 1);
+            String logFilePath = filePath + ".log";
             int finalI = i;
             Thread t = new Thread(() -> {
 
-                try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+                try {
+                    BufferedReader reader = new BufferedReader(new FileReader(filePath));
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (line.trim().isEmpty()) continue; // should never occur in our samples
@@ -96,11 +98,28 @@ public class Main {
             }
         }
         tm.finish();
+
+        for (int i = 0; i < numThreads; i++) {
+            String filePath = String.format("%s/T%d", benchmarkDir, i + 1);
+            String logFilePath = filePath + ".log";
+            logAll(logFilePath, threadInstructions.get(i));
+        }
         try {
             Thread.sleep(10);
         } catch (InterruptedException e) {
         }
         analyzeTimings(allInstructions);
+    }
+
+    private static void logAll (String logFilePath, List<Instruction> threadInstructions) {
+        try {
+            BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFilePath));
+            for(Instruction instr : threadInstructions) {
+                logWriter.write(instr.toString().replaceAll("\n", "\t") + "\n");
+            }
+        } catch (Exception e) {
+            return;
+        }
     }
 
     private static void analyzeTimings(List<Instruction> instructions) {

@@ -64,7 +64,8 @@ public class Instruction {
 
     @Override
     public String toString() {
-        return String.format("%s %s {%s}", opType, tableName, rowData == null ? "<>" : rowData.toString().replaceAll("\n", ""));
+        return String.format("%s %s %s {%s}\t;%s;%s;%s", id, opType, tableName, rowData == null ? "<>" :
+            rowData.toString().replaceAll("\n", ""), queueTime.toString(), setupTime.toString(), executionTime.toString());
     }
 
     public Timestamp getQueueTime() {
